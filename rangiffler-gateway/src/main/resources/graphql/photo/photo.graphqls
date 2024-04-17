@@ -1,0 +1,18 @@
+
+type Photo {
+    id: ID!
+    src: String!
+    country: Country!
+    description: String!
+    creationDate: Date!
+    likes: Likes
+}
+
+
+input PhotoInput {
+    id: ID
+    src: String
+    country: CountryInput
+    description: String
+    like: LikeInput
+}

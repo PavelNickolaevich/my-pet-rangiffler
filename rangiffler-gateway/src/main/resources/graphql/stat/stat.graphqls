@@ -1,0 +1,5 @@
+
+type Stat {
+    count: Int!
+    country: Country!
+}

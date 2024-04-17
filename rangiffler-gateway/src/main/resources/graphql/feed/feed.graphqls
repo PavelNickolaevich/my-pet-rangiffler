@@ -1,0 +1,7 @@
+type Feed {
+    username: String!
+    withFriends: Boolean!
+    photos(page:Int, size:Int): PhotoConnection
+    stat: [Stat!]
+}
+

@@ -1,0 +1,9 @@
+type Like {
+    user: ID!
+    username: String!
+    creationDate: Date!
+}
+
+input LikeInput {
+    user: ID!
+}

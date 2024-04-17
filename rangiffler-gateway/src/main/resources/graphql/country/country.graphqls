@@ -1,0 +1,9 @@
+type Country {
+    flag: String!
+    code: String!
+    name: String!
+}
+
+input CountryInput {
+    code: String!
+}
