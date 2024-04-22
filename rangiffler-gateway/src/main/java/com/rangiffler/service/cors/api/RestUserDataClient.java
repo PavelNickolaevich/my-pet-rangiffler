@@ -1,10 +1,10 @@
 package com.rangiffler.service.cors.api;
 
-import com.rangiffler.model.utils.CustomSliceImpl;
 import com.rangiffler.ex.NoRestResponseException;
 import com.rangiffler.model.CountryJson;
 import com.rangiffler.model.UserJson;
 import com.rangiffler.model.country.Country;
+import com.rangiffler.model.utils.CustomSliceImpl;
 import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +14,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
@@ -36,7 +37,7 @@ public class RestUserDataClient {
     }
 
     public @Nonnull
-    Slice<UserJson> getAllUsers(@Nonnull String username, PageRequest pageRequest, @Nonnull String query) {
+    Slice<UserJson> getAllUsers(@Nonnull String username, @Nonnull PageRequest pageRequest, @Nonnull String query) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("username", username);
         params.add("query", query);
@@ -46,27 +47,102 @@ public class RestUserDataClient {
                 .queryParam("size", pageRequest.getPageSize())
                 .build().toUri();
 
-//        return webClient.get()
-//                .uri(uri)
-//                .retrieve()
-//                .bodyToMono(new ParameterizedTypeReference<Slice<UserJson>>() {
-//                })
-//                .block();
-        //   new SliceImpl<>(userGqlList, PageRequest.of(page, size), response.hasNext());
-
-        var a =  webClient
+        return webClient
                 .get()
                 .uri(uri)
                 .retrieve()
-               //  .bodyToMono(Slice<UserJson>)
                 .bodyToMono(new ParameterizedTypeReference<CustomSliceImpl<UserJson>>() {
                 })
                 .block();
+    }
+
+    public @Nonnull
+    Slice<UserJson> getAllUsers(@Nonnull String username, @Nonnull PageRequest pageRequest) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("username", username);
+        URI uri = UriComponentsBuilder.fromHttpUrl(rangifflerUserdataBaseUri + "/allUsers")
+                .queryParams(params)
+                .queryParam("page", pageRequest.getPageNumber())
+                .queryParam("size", pageRequest.getPageSize())
+                .build().toUri();
+
+        return webClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<CustomSliceImpl<UserJson>>() {
+                })
+                .block();
+    }
+
+    public @Nonnull
+    Slice<UserJson> outcomeInvitations(@RequestParam UserJson userEntity,
+                                       @Nonnull PageRequest pageRequest,
+                                       @RequestParam String query) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("requester", userEntity.id().toString());
+        params.add("searchQuery", query);
+        URI uri = UriComponentsBuilder.fromHttpUrl(rangifflerUserdataBaseUri + "/outcomeInvitations")
+                .queryParams(params)
+                .queryParam("page", pageRequest.getPageNumber())
+                .queryParam("size", pageRequest.getPageSize())
+                .build().toUri();
+
+        return Optional.ofNullable(
+                webClient.get()
+                        .uri(uri)
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<CustomSliceImpl<UserJson>>() {
+                        })
+                        .block()
+        ).orElseThrow(() -> new NoRestResponseException("No REST List<UserJson> response is given [/outcomeInvitations Route]"));
+    }
 
 
-        return a;
-        //return new SliceImpl<>(a, PageRequest.of(page, size), a.hasNext());
+    public @Nonnull
+    Slice<UserJson> incomeInvitations(@RequestParam UserJson userEntity,
+                                      @Nonnull PageRequest pageRequest,
+                                      @RequestParam String query) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("addressee", userEntity.id().toString());
+        params.add("searchQuery", query);
+        URI uri = UriComponentsBuilder.fromHttpUrl(rangifflerUserdataBaseUri + "/incomeInvitations")
+                .queryParams(params)
+                .queryParam("page", pageRequest.getPageNumber())
+                .queryParam("size", pageRequest.getPageSize())
+                .build().toUri();
 
+        return Optional.ofNullable(
+                webClient.get()
+                        .uri(uri)
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<CustomSliceImpl<UserJson>>() {
+                        })
+                        .block()
+        ).orElseThrow(() -> new NoRestResponseException("No REST List<UserJson> response is given [/incomeInvitations Route]"));
+    }
+
+    public @Nonnull
+    Slice<UserJson> friends(@RequestParam UserJson userEntity,
+                            @Nonnull PageRequest pageRequest,
+                            @RequestParam String query) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("requester", userEntity.id().toString());
+        params.add("searchQuery", query);
+        URI uri = UriComponentsBuilder.fromHttpUrl(rangifflerUserdataBaseUri + "/friends")
+                .queryParams(params)
+                .queryParam("page", pageRequest.getPageNumber())
+                .queryParam("size", pageRequest.getPageSize())
+                .build().toUri();
+
+        return Optional.ofNullable(
+                webClient.get()
+                        .uri(uri)
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<CustomSliceImpl<UserJson>>() {
+                        })
+                        .block()
+        ).orElseThrow(() -> new NoRestResponseException("No REST List<UserJson> response is given [/friends Route]"));
     }
 
 
@@ -87,6 +163,18 @@ public class RestUserDataClient {
 
     public @Nonnull
     UserJson updateUserInfo(@Nonnull UserJson user) {
+        return Optional.ofNullable(
+                webClient.post()
+                        .uri(rangifflerUserdataBaseUri + "/updateUserInfo")
+                        .body(Mono.just(user), UserJson.class)
+                        .retrieve()
+                        .bodyToMono(UserJson.class)
+                        .block()
+        ).orElseThrow(() -> new NoRestResponseException("No REST UserJson response is given [/updateUserInfo Route]"));
+    }
+
+    public @Nonnull
+    UserJson friendshipAction(@Nonnull UserJson user) {
         return Optional.ofNullable(
                 webClient.post()
                         .uri(rangifflerUserdataBaseUri + "/updateUserInfo")

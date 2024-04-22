@@ -1,5 +1,6 @@
 package com.rangiffler.controller;
 
+import com.rangiffler.model.FriendshipInput;
 import com.rangiffler.model.UserJson;
 import com.rangiffler.model.country.Country;
 import com.rangiffler.model.user.UpdateUserInfoInput;
@@ -8,7 +9,6 @@ import com.rangiffler.service.cors.api.RestUserDataClient;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -19,7 +19,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -102,8 +101,13 @@ public class UserGraphQlController {
                                     @Argument int size,
                                     @Argument @Nullable String searchQuery) {
 
+        Slice<UserJson> userJsons;
         String username = principal.getClaim("sub");
-        var userJsons =  userService.getAllUsers(username,  PageRequest.of(page, size), searchQuery);
+        if (searchQuery == null) {
+            userJsons = userService.getAllUsers(username, PageRequest.of(page, size));
+        } else {
+            userJsons = userService.getAllUsers(username, PageRequest.of(page, size), searchQuery);
+        }
         Slice<UserJsonGQL> userJsonGQL = userJsons.map(new Function<UserJson, UserJsonGQL>() {
             @Override
             public UserJsonGQL apply(UserJson userJson) {
@@ -128,25 +132,90 @@ public class UserGraphQlController {
         return userJsonGQL;
     }
 
+    @SchemaMapping(typeName = "User", field = "outcomeInvitations")
+    Slice <UserJsonGQL> outcomeInvitations(@AuthenticationPrincipal Jwt principal,
+                            @Argument int page,
+                            @Argument int size,
+                            @Argument @Nullable String searchQuery) {
+
+        String username = principal.getClaim("sub");
+        UserJson userJson = userService.currentUser(username);
+
+        Slice<UserJson> userJsons = userService.outcomeInvitations(userJson, PageRequest.of(page, size), searchQuery);
+        return userJsons.map(userJson1 -> new UserJsonGQL(
+                userJson1.id(),
+                userJson1.username(),
+                userJson1.firstname(),
+                userJson1.surname(),
+                userJson1.avatar(),
+                userJson1.location(),
+                userJson1.friendStatus()
+        ));
+    }
+
+    @SchemaMapping(typeName = "User", field = "incomeInvitations")
+    Slice <UserJsonGQL> incomeInvitations(@AuthenticationPrincipal Jwt principal,
+                                           @Argument int page,
+                                           @Argument int size,
+                                           @Argument @Nullable String searchQuery) {
+
+        String username = principal.getClaim("sub");
+        UserJson userJson = userService.currentUser(username);
+
+        Slice<UserJson> userJsons = userService.incomeInvitations(userJson, PageRequest.of(page, size), searchQuery);
+        return userJsons.map(userJson1 -> new UserJsonGQL(
+                userJson1.id(),
+                userJson1.username(),
+                userJson1.firstname(),
+                userJson1.surname(),
+                userJson1.avatar(),
+                userJson1.location(),
+                userJson1.friendStatus()
+        ));
+    }
+
+    @SchemaMapping(typeName = "User", field = "friends")
+    Slice <UserJsonGQL> friends(@AuthenticationPrincipal Jwt principal,
+                                          @Argument int page,
+                                          @Argument int size,
+                                          @Argument @Nullable String searchQuery) {
+
+        String username = principal.getClaim("sub");
+        UserJson userJson = userService.currentUser(username);
+
+        Slice<UserJson> userJsons = userService.friends(userJson, PageRequest.of(page, size), searchQuery);
+        return userJsons.map(userJson1 -> new UserJsonGQL(
+                userJson1.id(),
+                userJson1.username(),
+                userJson1.firstname(),
+                userJson1.surname(),
+                userJson1.avatar(),
+                userJson1.location(),
+                userJson1.friendStatus()
+        ));
+    }
+
+    @MutationMapping
+    public UserJsonGQL friendship(@AuthenticationPrincipal Jwt principal,
+                            @Argument @Valid FriendshipInput input) {
+        String username = principal.getClaim("sub");
+
+        UserJsonGQL userJsonGQL = UserJsonGQL.fromUserJson(userService.updateUserInfo(new UserJson(
+                null,
+                username,
+                input.firstname(),
+                input.surname(),
+                input.avatar(),
+                setCountry(input.location().code()),
+                null
+        )));
+        return userJsonGQL;
+    }
 
 
-//    @JsonProperty("id")
-//    UUID id,
-//    @JsonProperty("username")
-//    String username,
-//    @Size(max = 30, message = "First name can`t be longer than 30 characters")
-//    String firstname,
-//    @JsonProperty("surname")
-//    @Size(max = 50, message = "Surname can`t be longer than 50 characters")
-//    String surname,
-//    @JsonProperty("avatar")
-//    @Size(max = RangifflerGatewayServiceConfig.ONE_MB)
-//    String avatar,
-//    @JsonProperty("location")
-//    Country location,
-//    @JsonProperty("friendStatus")
-//    @JsonInclude(JsonInclude.Include.NON_NULL)
-//    FriendStatus friendStatus
+
+
+
 
 //    @MutationMapping
 //    public UserJsonGQL user(@AuthenticationPrincipal Jwt principal,

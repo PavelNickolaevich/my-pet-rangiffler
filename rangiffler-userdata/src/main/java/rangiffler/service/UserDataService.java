@@ -118,15 +118,12 @@ public class UserDataService {
     @Transactional(readOnly = true)
     public @Nonnull
     Slice<UserJson> allUsers(String username, Pageable pageable, String query) {
-        var a = userRepository.findByUsernameNotAndSearchQuery(username, pageable, query);
+        var userEntity = userRepository.findByUsernameNotAndSearchQuery(username, pageable, query);
 
-//        Slice<UserJson> dtos  = a.map(this::convertToObjectDto);
-//        return dtos;
-
-        Slice<UserJson> b = a.map(new Function<UserEntity, UserJson>() {
+        Slice<UserJson> userJsons = userEntity.map(new Function<>() {
             @Override
             public UserJson apply(UserEntity userEntity) {
-                UserJson dto = new UserJson(
+                UserJson userJson = new UserJson(
                         userEntity.getId(),
                         userEntity.getUsername(),
                         userEntity.getFirstname(),
@@ -140,10 +137,133 @@ public class UserDataService {
                                 userEntity.getCountry().getName()
                         ));
 
-                return dto;
+                return userJson;
             }
         });
-        return b;
+        return userJsons;
+    }
+
+    @Transactional(readOnly = true)
+    public @Nonnull
+    Slice<UserJson> outcomeInvitations(UserEntity requester,
+                                       Pageable pageable,
+                                       String searchQuery) {
+        Slice<UserEntity> userEntities;
+        if (searchQuery == null) {
+            userEntities = userRepository.findOutcomeInvitations(requester, pageable);
+
+        } else {
+            userEntities = userRepository.findOutcomeInvitations(requester, pageable, searchQuery);
+        }
+
+        return userEntities.map(userEntity -> new UserJson(
+                userEntity.getId(),
+                userEntity.getUsername(),
+                userEntity.getFirstname(),
+                userEntity.getLastName(),
+                userEntity.getAvatar() != null && userEntity.getAvatar().length > 0 ? new String(userEntity.getAvatar(), StandardCharsets.UTF_8) : null,
+                FriendStatus.INVITATION_SENT,
+                new CountryJson(
+                        userEntity.getCountry().getId(),
+                        userEntity.getCountry().getCode(),
+                        userEntity.getCountry().getFlag(),
+                        userEntity.getCountry().getName()
+                )));
+    }
+
+    @Transactional(readOnly = true)
+    public @Nonnull
+    List<UserJson> outcomeInvitations(UserEntity userEntity) {
+        var userEntities = userRepository.findOutcomeInvitations(userEntity);
+        return userEntities.stream()
+                .map(fe -> UserJson.fromEntity(userEntity))
+                .toList();
+
+    }
+
+    @Transactional(readOnly = true)
+    public @Nonnull
+    List<UserJson> outcomeInvitations(UserEntity userEntity, String query) {
+        var userEntities = userRepository.findOutcomeInvitations(userEntity, query);
+        return userEntities.stream()
+                .map(fe -> UserJson.fromEntity(userEntity))
+                .toList();
+    }
+
+//    @Transactional(readOnly = true)
+//    public @Nonnull
+//    List<UserJson> outcomeInvitations(UserEntity userEntity, String query) {
+//        return getRequiredUser(userEntity.getId().toString())
+//                .getInvites()
+//                .stream()
+//                .filter(fs -> fs.getStatus().equals(FriendStatus.INVITATION_SENT) && fs.getFriend().)
+//                .map(fe -> UserJson.fromEntity(fe.getUser(), FriendStatus.INVITATION_SENT))
+//                .toList();
+//    }
+
+
+    @Transactional(readOnly = true)
+    public @Nonnull
+    Slice<UserJson> incomeInvitations(UserEntity addressee,
+                                      Pageable pageable,
+                                      String searchQuery) {
+        Slice<UserEntity> userEntities;
+        if (searchQuery == null) {
+            userEntities = userRepository.findIncomeInvitations(addressee, pageable);
+
+        } else {
+            userEntities = userRepository.findIncomeInvitations(addressee, pageable, searchQuery);
+        }
+
+        return userEntities.map(userEntity1 -> new UserJson(
+                userEntity1.getId(),
+                userEntity1.getUsername(),
+                userEntity1.getFirstname(),
+                userEntity1.getLastName(),
+                userEntity1.getAvatar() != null && userEntity1.getAvatar().length > 0 ? new String(userEntity1.getAvatar(), StandardCharsets.UTF_8) : null,
+                FriendStatus.INVITATION_RECEIVED,
+                new CountryJson(
+                        userEntity1.getCountry().getId(),
+                        userEntity1.getCountry().getCode(),
+                        userEntity1.getCountry().getFlag(),
+                        userEntity1.getCountry().getName()
+                )));
+    }
+
+
+    @Transactional(readOnly = true)
+    public @Nonnull
+    Slice<UserJson> friends(UserEntity requester,
+                            Pageable pageable,
+                            String searchQuery) {
+
+        Slice<UserEntity> userEntities = userRepository.findFriends(requester, pageable, searchQuery);
+
+        return userEntities.map(userEntity1 -> new UserJson(
+                userEntity1.getId(),
+                userEntity1.getUsername(),
+                userEntity1.getFirstname(),
+                userEntity1.getLastName(),
+                userEntity1.getAvatar() != null && userEntity1.getAvatar().length > 0 ? new String(userEntity1.getAvatar(), StandardCharsets.UTF_8) : null,
+                FriendStatus.FRIEND,
+                new CountryJson(
+                        userEntity1.getCountry().getId(),
+                        userEntity1.getCountry().getCode(),
+                        userEntity1.getCountry().getFlag(),
+                        userEntity1.getCountry().getName()
+                )));
+    }
+
+
+    @Transactional(readOnly = true)
+    public @Nonnull
+    List<UserJson> incomeInvitations(@Nonnull String username) {
+        return getRequiredUser(username)
+                .getInvites()
+                .stream()
+                .filter(fs -> fs.getStatus().equals(FriendStatus.INVITATION_RECEIVED))
+                .map(fe -> UserJson.fromEntity(fe.getUser(), FriendStatus.INVITATION_RECEIVED))
+                .toList();
     }
 
 
@@ -236,17 +356,6 @@ public class UserDataService {
         return userRepository.findByUsername(username)
                 .getFriends().stream().filter(fe -> fe.getStatus().equals(FriendStatus.FRIEND))
                 .map(fe -> UserJson.fromEntity(fe.getFriend())).toList();
-    }
-
-
-    @Transactional(readOnly = true)
-    public @Nonnull
-    List<UserJson> invitations(@Nonnull String username) {
-        return getRequiredUser(username)
-                .getInvites()
-                .stream()
-                .map(fe -> UserJson.fromEntity(fe.getUser(), FriendStatus.INVITATION_SENT))
-                .toList();
     }
 
 

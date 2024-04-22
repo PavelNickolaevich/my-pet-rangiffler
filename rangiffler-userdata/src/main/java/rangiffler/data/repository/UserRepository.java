@@ -25,69 +25,69 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
                                                       @Param("searchQuery") String searchQuery);
 
 
-//    @Query("select u from UserEntity u join FriendsEntity f on u = f.addressee" +
-//            " where f.status = com.rangiffler.model.FriendStatus.FRIEND and f.requester = :requester")
-//    Slice<UserEntity> findFriends(@Param("requester") UserEntity requester,
-//                                  @Nonnull Pageable pageable);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.addressee" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.ACCEPTED and f.requester = :requester" +
-//            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.surname like %:searchQuery%)")
-//    Slice<UserEntity> findFriends(@Param("requester") UserEntity requester,
-//                                  @Nonnull Pageable pageable,
-//                                  @Param("searchQuery") String searchQuery);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.addressee" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.ACCEPTED and f.requester = :requester")
-//    List<UserEntity> findFriends(@Param("requester") UserEntity requester);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.addressee" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.ACCEPTED and f.requester = :requester" +
-//            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.surname like %:searchQuery%)")
-//    Slice<UserEntity> findFriends(@Param("requester") UserEntity requester,
-//                                  @Param("searchQuery") String searchQuery);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.addressee" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.PENDING and f.requester = :requester")
-//    Slice<UserEntity> findOutcomeInvitations(@Param("requester") UserEntity requester,
-//                                             @Nonnull Pageable pageable);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.addressee" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.PENDING and f.requester = :requester" +
-//            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.surname like %:searchQuery%)")
-//    Slice<UserEntity> findOutcomeInvitations(@Param("requester") UserEntity requester,
-//                                             @Nonnull Pageable pageable,
-//                                             @Param("searchQuery") String searchQuery);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.addressee" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.PENDING and f.requester = :requester")
-//    List<UserEntity> findOutcomeInvitations(@Param("requester") UserEntity requester);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.addressee" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.PENDING and f.requester = :requester" +
-//            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.surname like %:searchQuery%)")
-//    List<UserEntity> findOutcomeInvitations(@Param("requester") UserEntity requester,
-//                                            @Param("searchQuery") String searchQuery);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.requester" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.PENDING and f.addressee = :addressee")
-//    Slice<UserEntity> findIncomeInvitations(@Param("addressee") UserEntity addressee,
-//                                            @Nonnull Pageable pageable);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.requester" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.PENDING and f.addressee = :addressee" +
-//            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.surname like %:searchQuery%)")
-//    Slice<UserEntity> findIncomeInvitations(@Param("addressee") UserEntity addressee,
-//                                            @Nonnull Pageable pageable,
-//                                            @Param("searchQuery") String searchQuery);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.requester" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.PENDING and f.addressee = :addressee")
-//    List<UserEntity> findIncomeInvitations(@Param("addressee") UserEntity addressee);
-//
-//    @Query("select u from UserEntity u join FriendshipEntity f on u = f.requester" +
-//            " where f.status = org.rangiffler.data.FriendshipStatus.PENDING and f.addressee = :addressee" +
-//            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.surname like %:searchQuery%)")
-//    List<UserEntity> findIncomeInvitations(@Param("addressee") UserEntity addressee,
-//                                           @Param("searchQuery") String searchQuery);
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.friend" +
+            " where f.status = rangiffler.model.FriendStatus.FRIEND and f.user = :requester")
+    Slice<UserEntity> findFriends(@Param("requester") UserEntity requester,
+                                  @Nonnull Pageable pageable);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.friend" +
+            " where f.status = rangiffler.model.FriendStatus.FRIEND and f.user = :requester" +
+            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.lastName like %:searchQuery%)")
+    Slice<UserEntity> findFriends(@Param("requester") UserEntity requester,
+                                  @Nonnull Pageable pageable,
+                                  @Param("searchQuery") String searchQuery);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.friend" +
+            " where f.status = rangiffler.model.FriendStatus.FRIEND and f.user = :requester")
+    List<UserEntity> findFriends(@Param("requester") UserEntity requester);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.friend" +
+            " where f.status = rangiffler.model.FriendStatus.FRIEND and f.user = :requester" +
+            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.lastName like %:searchQuery%)")
+    Slice<UserEntity> findFriends(@Param("requester") UserEntity requester,
+                                  @Param("searchQuery") String searchQuery);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.friend" +
+            " where f.status = rangiffler.model.FriendStatus.INVITATION_SENT and f.user = :requester")
+    Slice<UserEntity> findOutcomeInvitations(@Param("requester") UserEntity requester,
+                                             @Nonnull Pageable pageable);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.friend" +
+            " where f.status = rangiffler.model.FriendStatus.INVITATION_SENT and f.user = :requester" +
+            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.lastName like %:searchQuery%)")
+    Slice<UserEntity> findOutcomeInvitations(@Param("requester") UserEntity requester,
+                                             @Nonnull Pageable pageable,
+                                             @Param("searchQuery") String searchQuery);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.friend" +
+            " where f.status = rangiffler.model.FriendStatus.INVITATION_SENT and f.user = :requester")
+    List<UserEntity> findOutcomeInvitations(@Param("requester") UserEntity requester);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.friend" +
+            " where f.status = rangiffler.model.FriendStatus.INVITATION_SENT and f.user = :requester" +
+            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.lastName like %:searchQuery%)")
+    List<UserEntity> findOutcomeInvitations(@Param("requester") UserEntity requester,
+                                            @Param("searchQuery") String searchQuery);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.user" +
+            " where f.status = rangiffler.model.FriendStatus.INVITATION_RECEIVED and f.friend = :addressee")
+    Slice<UserEntity> findIncomeInvitations(@Param("addressee") UserEntity addressee,
+                                            @Nonnull Pageable pageable);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.user" +
+            " where f.status = rangiffler.model.FriendStatus.INVITATION_RECEIVED and f.friend = :addressee" +
+            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.lastName like %:searchQuery%)")
+    Slice<UserEntity> findIncomeInvitations(@Param("addressee") UserEntity addressee,
+                                            @Nonnull Pageable pageable,
+                                            @Param("searchQuery") String searchQuery);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.user" +
+            " where f.status = rangiffler.model.FriendStatus.INVITATION_RECEIVED and f.friend = :addressee")
+    List<UserEntity> findIncomeInvitations(@Param("addressee") UserEntity addressee);
+
+    @Query("select u from UserEntity u join FriendsEntity f on u = f.user" +
+            " where f.status = rangiffler.model.FriendStatus.INVITATION_RECEIVED and f.friend = :addressee" +
+            " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.lastName like %:searchQuery%)")
+    List<UserEntity> findIncomeInvitations(@Param("addressee") UserEntity addressee,
+                                           @Param("searchQuery") String searchQuery);
 }
