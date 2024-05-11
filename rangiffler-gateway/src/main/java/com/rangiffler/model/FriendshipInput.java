@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public record FriendshipInput(
 
-        @JsonProperty("id")
+        @JsonProperty("user")
         UUID user,
         @JsonProperty("action")
         FriendshipAction action

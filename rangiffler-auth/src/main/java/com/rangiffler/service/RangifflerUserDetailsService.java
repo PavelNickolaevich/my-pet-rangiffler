@@ -28,6 +28,6 @@ public class RangifflerUserDetailsService implements UserDetailsService {
     if (user == null) {
       throw new UsernameNotFoundException("Username: " + username + " not found");
     }
-    return new RangifflerUserPrincipal(user);
+     return new RangifflerUserPrincipal(user);
   }
 }

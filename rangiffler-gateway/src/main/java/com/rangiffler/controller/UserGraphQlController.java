@@ -19,9 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Controller
 public class UserGraphQlController {
@@ -117,12 +115,6 @@ public class UserGraphQlController {
                         userJson.firstname(),
                         userJson.surname(),
                         userJson.avatar(),
-//                        new Country(
-//                                userJson.location().id(),
-//                                userJson.location().code(),
-//                                userJson.location().flag(),
-//                                userJson.location().name()
-//                        ),
                         userJson.location(),
                         null
 
@@ -133,10 +125,10 @@ public class UserGraphQlController {
     }
 
     @SchemaMapping(typeName = "User", field = "outcomeInvitations")
-    Slice <UserJsonGQL> outcomeInvitations(@AuthenticationPrincipal Jwt principal,
-                            @Argument int page,
-                            @Argument int size,
-                            @Argument @Nullable String searchQuery) {
+    Slice<UserJsonGQL> outcomeInvitations(@AuthenticationPrincipal Jwt principal,
+                                          @Argument int page,
+                                          @Argument int size,
+                                          @Argument @Nullable String searchQuery) {
 
         String username = principal.getClaim("sub");
         UserJson userJson = userService.currentUser(username);
@@ -154,10 +146,10 @@ public class UserGraphQlController {
     }
 
     @SchemaMapping(typeName = "User", field = "incomeInvitations")
-    Slice <UserJsonGQL> incomeInvitations(@AuthenticationPrincipal Jwt principal,
-                                           @Argument int page,
-                                           @Argument int size,
-                                           @Argument @Nullable String searchQuery) {
+    Slice<UserJsonGQL> incomeInvitations(@AuthenticationPrincipal Jwt principal,
+                                         @Argument int page,
+                                         @Argument int size,
+                                         @Argument @Nullable String searchQuery) {
 
         String username = principal.getClaim("sub");
         UserJson userJson = userService.currentUser(username);
@@ -175,10 +167,10 @@ public class UserGraphQlController {
     }
 
     @SchemaMapping(typeName = "User", field = "friends")
-    Slice <UserJsonGQL> friends(@AuthenticationPrincipal Jwt principal,
-                                          @Argument int page,
-                                          @Argument int size,
-                                          @Argument @Nullable String searchQuery) {
+    Slice<UserJsonGQL> friends(@AuthenticationPrincipal Jwt principal,
+                               @Argument int page,
+                               @Argument int size,
+                               @Argument @Nullable String searchQuery) {
 
         String username = principal.getClaim("sub");
         UserJson userJson = userService.currentUser(username);
@@ -197,24 +189,47 @@ public class UserGraphQlController {
 
     @MutationMapping
     public UserJsonGQL friendship(@AuthenticationPrincipal Jwt principal,
-                            @Argument @Valid FriendshipInput input) {
+                                  @Argument @Valid FriendshipInput input) {
         String username = principal.getClaim("sub");
+        UserJsonGQL userJsonGQL;
 
-        UserJsonGQL userJsonGQL = UserJsonGQL.fromUserJson(userService.updateUserInfo(new UserJson(
-                null,
-                username,
-                input.firstname(),
-                input.surname(),
-                input.avatar(),
-                setCountry(input.location().code()),
-                null
-        )));
-        return userJsonGQL;
+        switch (input.action()) {
+            case DELETE -> {
+                userJsonGQL = UserJsonGQL.fromUserJson(userService.removeFriend(
+                        username,
+                        input.action(),
+                        input.user().toString()
+                ));
+                return userJsonGQL;
+            }
+            case ACCEPT -> {
+                userJsonGQL = UserJsonGQL.fromUserJson(userService.acceptInvitation(
+                        username,
+                        input.action(),
+                        input.user().toString()
+                ));
+                return userJsonGQL;
+            }
+            case ADD -> {
+                userJsonGQL = UserJsonGQL.fromUserJson(userService.addFriend(
+                        username,
+                        input.action(),
+                        input.user().toString()
+                ));
+                return userJsonGQL;
+            }
+            case REJECT -> {
+                userJsonGQL = UserJsonGQL.fromUserJson(userService.declineInvitation(
+                        username,
+                        input.action(),
+                        input.user().toString()
+                ));
+                return userJsonGQL;
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + input.action());
+        }
+
     }
-
-
-
-
 
 
 //    @MutationMapping

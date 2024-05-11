@@ -2,6 +2,7 @@ package com.rangiffler.service.cors.api;
 
 import com.rangiffler.ex.NoRestResponseException;
 import com.rangiffler.model.CountryJson;
+import com.rangiffler.model.FriendshipAction;
 import com.rangiffler.model.UserJson;
 import com.rangiffler.model.country.Country;
 import com.rangiffler.model.utils.CustomSliceImpl;
@@ -174,15 +175,79 @@ public class RestUserDataClient {
     }
 
     public @Nonnull
-    UserJson friendshipAction(@Nonnull UserJson user) {
+    UserJson removeFriend(@Nonnull String username,
+                          @Nonnull FriendshipAction action,
+                          @Nonnull String friendUUID) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("user", friendUUID);
+        params.add("username", username);
+        URI uri = UriComponentsBuilder.fromHttpUrl(rangifflerUserdataBaseUri + "/removeFriend").queryParams(params).build().toUri();
+
+        return Optional.ofNullable(
+                webClient.delete()
+                        .uri(uri)
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<UserJson>() {
+                        })
+                        .block()
+        ).orElseThrow(() -> new NoRestResponseException("No REST List<UserJson> response is given [/removeFriend Route]"));
+    }
+
+    public @Nonnull
+    UserJson acceptInvitation(@Nonnull String username,
+                              @Nonnull FriendshipAction action,
+                              @Nonnull String friendUUID) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("user", friendUUID);
+        params.add("username", username);
+        URI uri = UriComponentsBuilder.fromHttpUrl(rangifflerUserdataBaseUri + "/acceptInvitation").queryParams(params).build().toUri();
+
         return Optional.ofNullable(
                 webClient.post()
-                        .uri(rangifflerUserdataBaseUri + "/updateUserInfo")
-                        .body(Mono.just(user), UserJson.class)
+                        .uri(uri)
                         .retrieve()
-                        .bodyToMono(UserJson.class)
+                        .bodyToMono(new ParameterizedTypeReference<UserJson>() {
+                        })
                         .block()
-        ).orElseThrow(() -> new NoRestResponseException("No REST UserJson response is given [/updateUserInfo Route]"));
+        ).orElseThrow(() -> new NoRestResponseException("No REST List<UserJson> response is given [/friendsAccept Route]"));
+    }
+
+    public @Nonnull
+    UserJson addFriend(@Nonnull String username,
+                              @Nonnull FriendshipAction action,
+                              @Nonnull String friendUUID) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("user", friendUUID);
+        params.add("username", username);
+        URI uri = UriComponentsBuilder.fromHttpUrl(rangifflerUserdataBaseUri + "/addFriend").queryParams(params).build().toUri();
+
+        return Optional.ofNullable(
+                webClient.post()
+                        .uri(uri)
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<UserJson>() {
+                        })
+                        .block()
+        ).orElseThrow(() -> new NoRestResponseException("No REST List<UserJson> response is given [/friendsAccept Route]"));
+    }
+
+    public @Nonnull
+    UserJson declineInvitation(@Nonnull String username,
+                       @Nonnull FriendshipAction action,
+                       @Nonnull String friendUUID) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("user", friendUUID);
+        params.add("username", username);
+        URI uri = UriComponentsBuilder.fromHttpUrl(rangifflerUserdataBaseUri + "/declineInvitation").queryParams(params).build().toUri();
+
+        return Optional.ofNullable(
+                webClient.post()
+                        .uri(uri)
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<UserJson>() {
+                        })
+                        .block()
+        ).orElseThrow(() -> new NoRestResponseException("No REST List<UserJson> response is given [/friendsAccept Route]"));
     }
 
     public @Nonnull

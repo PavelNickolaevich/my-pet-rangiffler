@@ -1,12 +1,12 @@
 server:
-  port: 8089
+  port: 8088
   error:
     include:
       message: true
 
 spring:
   application:
-    name: rangiffler-userdata
+    name: rangiffler-photo
   datasource:
     hikari:
       connection-timeout: 20000
@@ -20,7 +20,7 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0
     schemas: public
-    locations: classpath:db/migration/rangiffler-userdata
+    locations: classpath:db/migration/rangiffler-photo
   jpa:
     hibernate:
       ddl-auto: none
@@ -64,11 +64,9 @@ spring:
       group-id: 'userdata'
       auto-offset-reset: earliest
   datasource:
-    url: 'jdbc:postgresql://localhost:5432/rangiffler-userdata'
+    url: 'jdbc:postgresql://localhost:5432/rangiffler-photo'
     username: postgres
     password: root
-rangiffler-userdata:
-  base-uri: 'http://127.0.0.1:8089'
 ---
 spring:
   config:
@@ -85,59 +83,7 @@ spring:
       group-id: 'userdata'
       auto-offset-reset: earliest
   datasource:
-    url: 'jdbc:postgresql://rangiffler-all-db:5432/rangiffler-userdata'
+    url: 'jdbc:postgresql://rangiffler-all-db:5432/rangiffler-photo'
     username: postgres
     password: secret
-niffler-userdata:
-  base-uri: 'http://userdata.rangiffler.dc:8089'
----
-spring:
-  config:
-    activate:
-      on-profile: 'prod'
-    import: vault://
-  cloud:
-    vault:
-      authentication: TOKEN
-      host: vault.qa.guru
-      port: 443
-      scheme: https
-      uri: https://vault.qa.guru:443
-      token: ${VAULT_TOKEN}
-  kafka:
-    bootstrap-servers: ${kafka.url}
-    consumer:
-      group-id: 'userdata'
-      auto-offset-reset: earliest
-  datasource:
-    url: ${db.url}
-    username: ${db.username}
-    password: ${db.password}
-niffler-userdata:
-  base-uri: ${niffler-userdata.url}
----
-spring:
-  config:
-    activate:
-      on-profile: 'staging'
-    import: vault://
-  cloud:
-    vault:
-      authentication: TOKEN
-      host: vault.qa.guru
-      port: 443
-      scheme: https
-      uri: https://vault.qa.guru:443
-      token: ${VAULT_TOKEN}
-  kafka:
-    bootstrap-servers: ${kafka.url}
-    consumer:
-      group-id: 'userdata'
-      auto-offset-reset: earliest
-  datasource:
-    url: ${db.url}
-    username: ${db.username}
-    password: ${db.password}
-niffler-userdata:
-  base-uri: ${niffler-userdata.url}
 ---

@@ -33,6 +33,35 @@ public class UserService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+//    @Transactional
+//    public @Nonnull
+//    String registerUser(@Nonnull String username, @Nonnull String password) {
+//        UserEntity userEntity = new UserEntity();
+//        userEntity.setEnabled(true);
+//        userEntity.setAccountNonExpired(true);
+//        userEntity.setCredentialsNonExpired(true);
+//        userEntity.setAccountNonLocked(true);
+//        userEntity.setUsername(username);
+//        userEntity.setPassword(passwordEncoder.encode(password));
+//
+//        AuthorityEntity readAuthorityEntity = new AuthorityEntity();
+//        readAuthorityEntity.setAuthority(Authority.read);
+//        AuthorityEntity writeAuthorityEntity = new AuthorityEntity();
+//        writeAuthorityEntity.setAuthority(Authority.write);
+//
+//        userEntity.addAuthorities(readAuthorityEntity, writeAuthorityEntity);
+//        String savedUser = userRepository.save(userEntity).getUsername();
+//        kafkaTemplate.send("users", new UserJson(savedUser));
+//        LOG.info("### Kafka topic [users] sent message: " + savedUser);
+//        return savedUser;
+
+//        userEntity.addAuthorities(readAuthorityEntity, writeAuthorityEntity);
+//        return userRepository.save(userEntity).getUsername();
+//        String savedUser = userRepository.save(userEntity).getUsername();
+//        kafkaTemplate.send("users", new UserJson(savedUser));
+//        LOG.info("### Kafka topic [users] sent message: " + savedUser);
+//        return savedUser;
+
     @Transactional
     public @Nonnull
     String registerUser(@Nonnull String username, @Nonnull String password) {
@@ -50,10 +79,10 @@ public class UserService {
         writeAuthorityEntity.setAuthority(Authority.write);
 
         userEntity.addAuthorities(readAuthorityEntity, writeAuthorityEntity);
-        return userRepository.save(userEntity).getUsername();
-//        String savedUser = userRepository.save(userEntity).getUsername();
-//        kafkaTemplate.send("users", new UserJson(savedUser));
-//        LOG.info("### Kafka topic [users] sent message: " + savedUser);
-//        return savedUser;
+        String savedUser = userRepository.save(userEntity).getUsername();
+        kafkaTemplate.send("users", new UserJson(savedUser));
+        LOG.info("### Kafka topic [users] sent message: " + savedUser);
+        return savedUser;
+
     }
 }
