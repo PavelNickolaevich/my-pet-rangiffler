@@ -1,5 +1,128 @@
 # Rangiffler
 
+#### 1. Установить docker (Если не установлен)
+
+Мы будем использовать docker для БД (Postgres), кроме того, будем запускать микросервисы в едином docker network при
+помощи docker-compose
+
+[Установка на Windows](https://docs.docker.com/desktop/install/windows-install/)
+
+[Установка на Mac](https://docs.docker.com/desktop/install/mac-install/) (Для ARM и Intel разные пакеты)
+
+[Установка на Linux](https://docs.docker.com/desktop/install/linux-install/)
+
+После установки и запуска docker daemon необходимо убедиться в работе команд docker, например `docker -v`:
+
+#### 2. Спуллить контейнер postgres:15.1, zookeeper и kafka версии 7.3.2
+
+```posh
+docker pull postgres:15.1
+docker pull confluentinc/cp-zookeeper:7.3.2
+docker pull confluentinc/cp-kafka:7.3.2
+```
+
+После `pull` вы увидите спуленный image командой `docker images`
+
+```posh
+mitriis-MacBook-Pro ~ % docker images            
+REPOSITORY                 TAG              IMAGE ID       CREATED         SIZE
+postgres                   15.1             9f3ec01f884d   10 days ago     379MB
+confluentinc/cp-kafka      7.3.2            db97697f6e28   12 months ago   457MB
+confluentinc/cp-zookeeper  7.3.2            6fe5551964f5   7 years ago     451MB
+
+```
+
+#### 3. Создать volume для сохранения данных из БД в docker на вашем компьютере
+
+```posh
+docker volume create pgdata
+```
+
+#### 4. Запустить БД, zookeeper и kafka 3-мя последовательными командами:
+ 
+Выполнив последовательно команды, для *nix:
+
+```posh
+docker run --name niffler-all -p 5432:5432 -e POSTGRES_PASSWORD=secret -v pgdata:/var/lib/postgresql/data -d postgres:15.1
+
+docker run --name=zookeeper -e ZOOKEEPER_CLIENT_PORT=2181 -e ZOOKEEPER_TICK_TIME=2000 -p 2181:2181 -d confluentinc/cp-zookeeper:7.3.2
+
+docker run --name=kafka -e KAFKA_BROKER_ID=1 \
+-e KAFKA_ZOOKEEPER_CONNECT=$(docker inspect zookeeper --format='{{ .NetworkSettings.IPAddress }}'):2181 \
+-e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
+-e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
+-e KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1 \
+-e KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 \
+-p 9092:9092 -d confluentinc/cp-kafka:7.3.2
+```
+
+#### 5. Установить одну из программ для визуальной работы с Postgres
+
+Например, DBeaver или Datagrip.
+
+#### 6. Подключиться к БД postgres (host: localhost, port: 5432, user: postgres, pass: secret, database name: postgres) из PgAdmin и создать пустые БД микросервисов
+
+```sql
+create
+    database "rangiffler-userdata" with owner postgres;
+create
+    database "rangiffler-geo" with owner postgres;
+create
+    database "rangiffler-photo" with owner postgres;
+create
+    database "rangiffler-auth" with owner postgres;
+```
+
+#### 7. Установить Java версии 17 или новее. Это необходимо, т.к. проект не поддерживает версии <17
+
+Версию установленной Java необходимо проверить командой `java -version`
+
+
+#### 8. Установить пакетый менеджер для сборки front-end npm
+
+[Инструкция](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+Рекомендованная версия Node.js - 18.13.0 (LTS)
+
+# Запуск Rangiffler локально в IDE:
+
+#### 1. Запустить фронтенд (сначала обновить зависимости)
+
+
+```posh
+Dmitriis-MacBook-Pro  rangiffler-gql-client % npm i
+Dmitriis-MacBook-Pro rangiffler-gql-client % npm run dev 
+```
+
+#### 3. Прописать run конфигурацию для всех сервисов rangiffler-* - Active profiles local
+
+Для этого зайти в меню Run -> Edit Configurations -> выбрать main класс -> указать Active profiles: local
+[Инструкция](https://stackoverflow.com/questions/39738901/how-do-i-activate-a-spring-boot-profile-when-running-from-intellij).
+
+#### 4 Запустить сервис rangiffler-auth c помощью gradle или командой Run в IDE:
+- 
+
+- Запустить сервис auth
+
+```posh
+rangiffler % cd niffler-auth
+rangiffler-auth % gradle bootRun --args='--spring.profiles.active=local'
+```
+
+Или просто перейдя к main-классу приложения RangifflerAuthApplication выбрать run в IDEA (предварительно удостовериться что
+выполнен предыдущий пункт)
+
+#### 5  Запустить в любой последовательности другие сервисы: rangiffler-userdata, rangiffler-geo, rangiffler-gateway, rangiffler-photo
+
+| Сервис        | Порт         |
+| ------------- |:-------------|
+| БД            | 5432         |
+| auth          | 9000         |
+| geo           | 8091         |
+| userdata      | 8089         |
+| gateway       | 8080         |
+| photo         | 8088         |
+| front         | 3001         |
+
   Приветствую тебя, мой дорогой студент!
 Если ты это читаешь - то ты собираешься сделать первый шаг в написании диплома QA.GURU Advanced.
 
