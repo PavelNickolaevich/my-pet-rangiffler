@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.rangiffler.service.PhotoService;
 
+import java.util.UUID;
+
 @RestController
 public class PhotoController {
 
@@ -24,10 +26,10 @@ public class PhotoController {
     }
 
     @GetMapping("/feed")
-    public Slice<PhotoJson> feeds(@Nonnull String username,
+    public Slice<PhotoJson> feeds(@Nonnull UUID userId,
                                   @Nonnull int page,
                                   @Nonnull int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        return photoService.feed(username, pageRequest);
+        return photoService.feed(userId, pageRequest);
     }
 }

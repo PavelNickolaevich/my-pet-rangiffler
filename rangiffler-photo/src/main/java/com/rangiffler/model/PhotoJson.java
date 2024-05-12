@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rangiffler.data.PhotoEntity;
 import jakarta.annotation.Nonnull;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public record PhotoJson(
         @JsonProperty("description")
         String description,
         @JsonProperty("photo")
-        byte[] photo,
+        String photo,
         @JsonProperty("created_date")
         Date createdDate
 ) {
@@ -31,7 +32,7 @@ public record PhotoJson(
                 photoEntity.getUserId(),
                 photoEntity.getCountryId(),
                 photoEntity.getDescription(),
-                photoEntity.getPhoto(),
+                photoEntity.getPhoto() != null && photoEntity.getPhoto().length > 0 ? new String(photoEntity.getPhoto(), StandardCharsets.UTF_8) : null,
                 photoEntity.getCreatedDate()
         );
     }

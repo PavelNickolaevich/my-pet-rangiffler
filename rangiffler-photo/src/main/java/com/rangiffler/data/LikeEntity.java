@@ -6,14 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.Date;
-import java.util.Objects;
-import java.util.UUID;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "like")
+@Table(name = "\"like\"")
 public class LikeEntity {
 
     @Id
@@ -24,8 +23,11 @@ public class LikeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UUID userId;
 
-    @JoinColumn(name = "create_date", nullable = false)
-    private Date createDate;
+    @JoinColumn(name = "created_date", nullable = false)
+    private Date createdDate;
+
+    @ManyToMany(mappedBy = "likes")
+    private List<PhotoEntity> photos = new ArrayList<>();
 
     @Override
     public final boolean equals(Object o) {

@@ -35,10 +35,10 @@ public class RestPhotoClient {
     }
 
     public @Nonnull
-    Slice<FeedJson> feed(@RequestParam String username,
+    Slice<FeedJson> feed(@RequestParam UserJson username,
                          @Nonnull PageRequest pageRequest) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("username", username);
+        params.add("username", String.valueOf(username.id()));
         URI uri = UriComponentsBuilder.fromHttpUrl(rangifflerPhotoUri + "/feed")
                 .queryParams(params)
                 .queryParam("page", pageRequest.getPageNumber())

@@ -7,10 +7,8 @@ create table if not exists photo
     country_id              UUID          not null,
     description            varchar(255),
     photo                   BYTEA,
-    created_date            DATE           not null,
-    primary key (id),
-    constraint ph_user_id foreign key (user_id) references "rangiffler-userdata".public."user"(id),
-    constraint ph_country_id foreign key (country_id) references "rangiffler-userdata".public."country"(id)
+    created_date            DATE          not null,
+    primary key (id)
 ) ;
 
 alter table photo
@@ -18,11 +16,10 @@ alter table photo
 
 create table if not exists "like"
 (
-    id                      UUID unique not null default uuid_generate_v1(),
-    user_id                 UUID       not null,
-    created_date            DATE not null,
-    primary key (id),
-    constraint like_user_id foreign key (user_id) references "rangiffler-userdata".public."user"(id)
+    id                      binary(16) unique not null default uuid_generate_v1(),
+    user_id                 binary(16)        not null,
+    created_date            date              not null,
+    primary key (id)
     );
 
 alter table "like"
@@ -31,7 +28,7 @@ alter table "like"
 create table if not exists "photo_like"
 (
     photo_id                UUID        not null,
-    like_id                 UUID       not null,
+    like_id                 UUID        not null,
     primary key (photo_id, like_id),
     constraint ph_like_photo_id foreign key (photo_id) references "photo" (id),
     constraint lk_like_photo_id foreign key (like_id) references "like" (id)
@@ -43,12 +40,10 @@ alter table "photo_like"
 create table if not exists "statistic"
 (
     id                      UUID unique not null default uuid_generate_v1(),
-    user_id                 UUID       not null,
+    user_id                 UUID        not null,
     country_id              UUID        not null,
-    count                   int               not null,
-    primary key (id),
-    constraint stat_user_id foreign key (user_id) references "rangiffler-userdata".public."user"(id),
-    constraint stat_country_code foreign key (country_id) references "rangiffler-userdata".public."country"(id)
+    count                   int         not null,
+    primary key (id)
     );
 
 alter table "statistic"

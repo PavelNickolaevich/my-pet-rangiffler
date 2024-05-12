@@ -9,6 +9,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -22,24 +24,17 @@ public class PhotoService {
 
     @Transactional(readOnly = true)
     public @Nonnull
-    Slice<PhotoJson> feed(String username, Pageable pageable) {
-        var userEntity = photoRepository.findAllByUsername(username, pageable);
+    Slice<PhotoJson> feed(UUID userId, Pageable pageable) {
+        var userEntity = photoRepository.findByUserId(userId, pageable);
 
-        Slice<PhotoJson> photoJsons = userEntity.map(new Function<>() {
-            @Override
-            public PhotoJson apply(PhotoEntity photoEntity) {
-                PhotoJson photoJson = new PhotoJson(
-                        photoEntity.getId(),
-                        photoEntity.getUserId(),
-                        photoEntity.getCountryId(),
-                        photoEntity.getDescription(),
-                        photoEntity.getPhoto(),
-                        null
-                );
-                return photoJson;
-            }
-        });
-        return photoJsons;
+        return userEntity.map(photoEntity -> new PhotoJson(
+                photoEntity.getId(),
+                photoEntity.getUserId(),
+                photoEntity.getCountryId(),
+                photoEntity.getDescription(),
+                photoEntity.getPhoto() != null && photoEntity.getPhoto().length > 0 ? new String(photoEntity.getPhoto(), StandardCharsets.UTF_8) : null,
+                null
+        ));
     }
 
 }

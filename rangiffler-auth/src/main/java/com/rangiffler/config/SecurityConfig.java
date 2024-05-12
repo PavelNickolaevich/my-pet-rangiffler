@@ -24,32 +24,33 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 public class SecurityConfig {
 
   private final CorsCustomizer corsCustomizer;
-//  private final Environment environment;
+  private final Environment environment;
 
-//  @Autowired
-//  public SecurityConfig(CorsCustomizer corsCustomizer, Environment environment) {
-//    this.corsCustomizer = corsCustomizer;
-//    this.environment = environment;
-//  }
-    @Autowired
-    public SecurityConfig(CorsCustomizer corsCustomizer) {
-        this.corsCustomizer = corsCustomizer;
-    }
+  @Autowired
+  public SecurityConfig(CorsCustomizer corsCustomizer, Environment environment) {
+    this.corsCustomizer = corsCustomizer;
+    this.environment = environment;
+  }
+//    @Autowired
+//    public SecurityConfig(CorsCustomizer corsCustomizer) {
+//        this.corsCustomizer = corsCustomizer;
+//    }
 
   @Bean
   public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
     corsCustomizer.corsCustomizer(http);
 
-//    if (environment.acceptsProfiles(Profiles.of("local", "staging"))) {
-//      http.addFilterBefore(new SpecificRequestDumperFilter(
-//          new RequestDumperFilter(),
-//          "/login", "/oauth2/.*"
-//      ), DisableEncodeUrlFilter.class);
-//    }
+    if (environment.acceptsProfiles(Profiles.of("local", "staging"))) {
+      http.addFilterBefore(new SpecificRequestDumperFilter(
+          new RequestDumperFilter(),
+          "/login", "/oauth2/.*"
+      ), DisableEncodeUrlFilter.class);
+    }
 
     return http.authorizeHttpRequests(customizer -> customizer
             .requestMatchers(
                 antMatcher("/register"),
+//                antMatcher("/my-travels"),
                 antMatcher("/images/**"),
                 antMatcher("/styles/**"),
                 antMatcher("/fonts/**"),

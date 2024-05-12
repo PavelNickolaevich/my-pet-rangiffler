@@ -1,8 +1,10 @@
 package com.rangiffler.controller;
 
 import com.rangiffler.model.FeedJson;
+import com.rangiffler.model.UserJson;
 import com.rangiffler.model.feed.FeedJsonGql;
 import com.rangiffler.service.cors.api.RestPhotoClient;
+import com.rangiffler.service.cors.api.RestUserDataClient;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -14,10 +16,12 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 public class PhotoGraphQlController {
     private final RestPhotoClient restPhotoClient;
+    private final RestUserDataClient userService;
 
     @Autowired
-    public PhotoGraphQlController(RestPhotoClient restPhotoClient) {
+    public PhotoGraphQlController(RestPhotoClient restPhotoClient, RestUserDataClient userService) {
         this.restPhotoClient = restPhotoClient;
+        this.userService = userService;
     }
 
     @SchemaMapping(typeName = "Feed", field = "photos")
@@ -27,8 +31,8 @@ public class PhotoGraphQlController {
                                    @Argument @Nullable Boolean withFriends) {
 
         String username = principal.getClaim("sub");
-
-        Slice<FeedJson> feedJsons = restPhotoClient.feed(username, PageRequest.of(page, size));
+        UserJson userJson = userService.currentUser(username);
+        Slice<FeedJson> feedJsons = restPhotoClient.feed(userJson, PageRequest.of(page, size));
         return feedJsons.map(feedJson -> new FeedJsonGql(
                 feedJson.username(),
                 feedJson.withFriends(),

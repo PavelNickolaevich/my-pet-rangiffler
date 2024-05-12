@@ -33,11 +33,14 @@ public class PhotoEntity {
     @Column(name = "created_date", nullable = false)
     private Date createdDate;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "photo_like", joinColumns ={
-            @JoinColumn(name = "photo_id", nullable = false)
+    @ManyToMany (cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
     })
-
+    @JoinTable(name = "photo_like",
+            joinColumns = @JoinColumn(name = "photo_id"),
+            inverseJoinColumns = @JoinColumn(name = "like_id")
+    )
     private List<LikeEntity> likes = new ArrayList<>();
 
     @Override

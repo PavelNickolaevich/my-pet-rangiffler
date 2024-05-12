@@ -1,5 +1,5 @@
 server:
-  port: 8090
+  port: 8080
   error:
     include:
       message: true
@@ -50,6 +50,10 @@ grpc:
 
 rangiffler-userdata:
   base-uri: 'http://127.0.0.1:8089'
+rangiffler-geo:
+  base-uri: 'http://127.0.0.1:8091'
+rangiffler-photo:
+  base-uri: 'http://127.0.0.1:8088'
 rangiffler-front:
   base-uri: 'http://127.0.0.1:3001'
 ---

@@ -14,7 +14,7 @@ public record CountryJson(
         String code,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonProperty("flag")
-        byte[] flag,
+        String flag,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonProperty("name")
         String name

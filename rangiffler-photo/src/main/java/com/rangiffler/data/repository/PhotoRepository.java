@@ -9,6 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface PhotoRepository extends JpaRepository<PhotoEntity, UUID> {
-
-//    Slice<PhotoEntity> fifinn(UserEntity userEntity,  @Nonnull Pageable pageable);
+    Slice<PhotoEntity> findByUserId (UUID userId,  @Nonnull Pageable pageable);
 }
